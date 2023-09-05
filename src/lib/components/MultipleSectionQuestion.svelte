@@ -7,7 +7,7 @@
     export let language;
     export let questionsLen;
     export let onNextQuestion;
-    let selectedAnswers = new Array(question.sections[0].length).fill(null);
+    let selectedAnswers = new Array(question.sections.length).fill(null);
     let isNextDisabled = true;
     let translations;
   
@@ -21,14 +21,14 @@
     let questionScore = 0;
 
     for (let i = 0; i < selectedAnswers.length; i++) {
-      const section = question.sections[0][i];
+      const section = question.sections[i];
       const selectedOptionIndex = selectedAnswers[i];
 
       if (selectedOptionIndex !== null) {
         const selectedOption = section.answers[selectedOptionIndex];
         if (selectedOption.state) {
           // If the answer is correct, add 1/section count to the total score
-          questionScore += 1 / question.sections[0].length;
+          questionScore += 1 / question.sections.length;
         }
       }
     }
@@ -71,7 +71,7 @@
     <p style="color: red; font-size: 14px; margin-bottom: 10px;">{question.description}</p>
   
     <div class="question-container">
-      {#each question.sections[0] as section, sectionIndex (section.title)}
+      {#each question.sections as section, sectionIndex (section.title)}
         <div class="section">
           <label>{section.title}</label>
           <div class="options">
