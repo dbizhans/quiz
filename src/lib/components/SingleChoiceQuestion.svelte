@@ -1,53 +1,53 @@
 <script>
     import NextButton from "./NextButton.svelte";
-
+    import BackButton from "./BackButton.svelte";
+    import shuffle from 'shuffle-array';
     export let question;
     export let onAnswer;
     export let currentQuestionIndex;
     export let language;
     export let questionsLen;
     export let onNextQuestion;
-    let userAnswers = new Array(question.answers.length).fill(false);
-    let selectedAnswer = null;
-    let translations;
-    let isNextDisabled = true; 
-    console.log(language)
-    console.log(question)
-    if (language === 'en') {
-        translations = new Map([
-            ['buttonLabelNext', 'Next'],
-            ['buttonLabelFinish', 'Finish'],
-        ]);
-        } else if (language === 'ru') {
-        translations = new Map([
-            ['buttonLabelNext', 'Далее'],
-            ['buttonLabelFinish', 'Завершить'],
-        ]);
-        } else if (language === 'lv') {
-        translations = new Map([
-            ['buttonLabelNext', 'Nākamais'],
-            ['buttonLabelFinish', 'Pabeigt'],
-        ]);
+    export let userAnswers;
+    export let onPreviousQuestion;
+
+    if (!userAnswers.length) {
+      userAnswers = new Array(question.answers.length).fill(false);
+      shuffle(question.answers)
     }
+    let selectedAnswer = null;
+    let isNextDisabled = true; 
+    if (userAnswers.indexOf(true)!== -1) {
+      for (let i = 0; i < question.answers.length; i++) { 
+        if (question.answers[i].id-1 === userAnswers.indexOf(true)) { 
+          selectedAnswer = i
+          isNextDisabled = false;
+          break; 
+        }
+      }
+    }
+
     function handleAnswer(index) {
-        selectedAnswer = index;
+        selectedAnswer = index; 
+        userAnswers = new Array(question.answers.length).fill(false);
+        userAnswers[question.answers[index].id-1] = true
         isNextDisabled = false;
     }
-  
+
     function calculateScore() {
-        let questionScore = 0;
-        const selectedState = question.answers[selectedAnswer].state;
-
-        if (selectedState) {
-            questionScore = 1;
-        }
-
-        return questionScore;
+      return question.answers.every((answer, index) => {
+        return answer.state === userAnswers[question.answers[index].id-1];
+      }) ? 1 : 0;
     }
-        function handleNext() {
-            let score = calculateScore();
-            onAnswer(userAnswers);
-            onNextQuestion(score);
+
+    function handleNext() {
+      let score = calculateScore();
+      onAnswer(userAnswers);
+      onNextQuestion(score);
+    }
+    function handleBack(){
+      onAnswer(userAnswers)
+      onPreviousQuestion()
     }
   </script>
   
@@ -80,9 +80,14 @@
     <NextButton
         currentQuestionIndex={currentQuestionIndex}
         questionsLen={questionsLen}
-        translations={translations}
+        language={language}
         handleNext={handleNext}
         isDisabled={isNextDisabled}
+    />
+    <BackButton 
+      currentQuestionIndex={currentQuestionIndex}
+      handleBack={handleBack}
+      language={language}
     />
   </main>
   

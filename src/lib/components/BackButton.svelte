@@ -1,35 +1,28 @@
 <script>
     export let currentQuestionIndex;
-    export let questionsLen;
     export let language;
-    export let handleNext;
+    export let handleBack;
     export let isDisabled; 
     let translations;
     if (language === 'en') {
         translations = new Map([
-            ['buttonLabelNext', 'Next'],
-            ['buttonLabelFinish', 'Finish'],
+            ['buttonLabelBack', 'Back'],
         ]);
         } else if (language === 'ru') {
         translations = new Map([
-            ['buttonLabelNext', 'Далее'],
-            ['buttonLabelFinish', 'Завершить'],
+            ['buttonLabelBack', 'Назад'],
         ]);
         } else if (language === 'lv') {
         translations = new Map([
-            ['buttonLabelNext', 'Nākamais'],
-            ['buttonLabelFinish', 'Pabeigt'],
+            ['buttonLabelBack', 'Atpakaļ'],
         ]);
     }
-    
   </script>
-  
-  <button class="custom-button {isDisabled ? 'disabled' : ''}" on:click={handleNext} disabled={isDisabled}>
-    {currentQuestionIndex === questionsLen - 1
-      ? translations.get('buttonLabelFinish')
-      : translations.get('buttonLabelNext')}
-  </button>
-  
+    {#if currentQuestionIndex>0}
+        <button class="custom-button {isDisabled ? 'disabled' : ''}" on:click={handleBack} disabled={isDisabled}>
+            {translations.get('buttonLabelBack')}
+        </button>
+    {/if}
   <style>
     .custom-button {
       background-color: #007bff; 
@@ -40,7 +33,7 @@
       border-radius: 5px;
       cursor: pointer;
       position: absolute;
-      right: 20px; 
+      left: 0px; 
       transition: background-color 0.3s ease, transform 0.2s ease; 
     }
   

@@ -22,7 +22,7 @@
     const fetchData = async () => {
         let response = await fetch(`/api/get-test/${id}`);
         data = await response.json();
-        console.log(data)
+        //console.log(data)
         if (!data[selectedLanguage]) {
             for (const lang in data) {
                 if (data[lang]) {

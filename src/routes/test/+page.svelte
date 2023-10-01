@@ -1,26 +1,21 @@
 <script>
-    import { onMount } from 'svelte';
     import shuffle from 'shuffle-array';
     import { testStore } from '../../stores/testStore';
 
     import MultipleChoiceQuestion from '$lib/components/MultipleChoiceQuestion.svelte';
     import SingleChoiceQuestion from '$lib/components/SingleChoiceQuestion.svelte';
     import OrderQuestion from '$lib/components/OrderQuestion.svelte';
-    import MultipleSectionQuestion from '$lib/components/MultipleSectionQuestion.svelte';
-    import MultipleQuestion from '$lib/components/MultipleQuestion.svelte';
     import MultipleImageQuestion from '$lib/components/MultipleImageQuestion.svelte';
     import ScoreComponent from '$lib/components/ScoreComponent.svelte';
 
     let testParams;
     let currentQuestionIndex = 0;
-    let userAnswers = [];
     let translations; 
     testStore.subscribe(value => {
         testParams = value;
     });
-    console.log(testParams)
     let { name, surname, language, questions } = testParams;
-
+    shuffle(questions)
     if (language === 'en') {
     translations = new Map([
         ['testTitle', 'Test'],
@@ -37,25 +32,30 @@
         ['questionLabel', 'Jautājums'],
     ]);
     }
-
-    shuffle(questions);
+    let userAnswers = new Array(questions.length).fill([]);
+    let score = new Array(questions.length).fill(0);
     let currentQuestion = questions[currentQuestionIndex];
     let testCompleted = false; 
-    let score = 0;
-
-
     function handleNextQuestion(questionScore) {
-        score += questionScore;
+        score[questions[currentQuestionIndex].id-1]=questionScore
         if (currentQuestionIndex < testParams.questions.length - 1) {
             currentQuestionIndex += 1;
             currentQuestion = questions[currentQuestionIndex];
         } else if (currentQuestionIndex == testParams.questions.length - 1) {
             testCompleted = true;
         }
+    } 
+    function handlePreviousQuestion(){
+      if (currentQuestionIndex>0){
+        currentQuestionIndex--
+        currentQuestion = questions[currentQuestionIndex];
+      }
+
     }
 
     function handleAnswer(answer) {
-        userAnswers = [...userAnswers, answer];
+        userAnswers[questions[currentQuestionIndex].id-1]=answer;
+        console.log(userAnswers)
     }
 </script>
 
@@ -69,7 +69,9 @@
             onAnswer={handleAnswer}
             language={language}
             questionsLen={testParams.questions.length}
+            userAnswers={userAnswers[questions[currentQuestionIndex].id-1] } 
             onNextQuestion={handleNextQuestion}
+            onPreviousQuestion={handlePreviousQuestion}
             bind:currentQuestionIndex
           />
         {:else if currentQuestion.type === 'single-choice'}
@@ -78,7 +80,9 @@
             onAnswer={handleAnswer}
             language={language}
             questionsLen={testParams.questions.length}
+            userAnswers={userAnswers[questions[currentQuestionIndex].id-1] } 
             onNextQuestion={handleNextQuestion}
+            onPreviousQuestion={handlePreviousQuestion}
             bind:currentQuestionIndex
           />
         {:else if currentQuestion.type === 'order'}
@@ -87,25 +91,9 @@
             onAnswer={handleAnswer}
             language={language}
             questionsLen={testParams.questions.length}
+            userAnswers={userAnswers[questions[currentQuestionIndex].id-1] } 
             onNextQuestion={handleNextQuestion}
-            bind:currentQuestionIndex
-          />
-        {:else if currentQuestion.type === 'multiple-section'}
-          <MultipleSectionQuestion
-            question={currentQuestion}
-            onAnswer={handleAnswer}
-            language={language}
-            questionsLen={testParams.questions.length}
-            onNextQuestion={handleNextQuestion}
-            bind:currentQuestionIndex
-          />
-        {:else if currentQuestion.type === 'multiple-question'}
-          <MultipleQuestion
-            question={currentQuestion}
-            onAnswer={handleAnswer}
-            language={language}
-            questionsLen={testParams.questions.length}
-            onNextQuestion={handleNextQuestion}
+            onPreviousQuestion={handlePreviousQuestion}
             bind:currentQuestionIndex
           />
         {:else if currentQuestion.type === 'multiple-image'}
@@ -114,7 +102,9 @@
             onAnswer={handleAnswer}
             language={language}
             questionsLen={testParams.questions.length}
+            userAnswers={userAnswers[questions[currentQuestionIndex].id-1] } 
             onNextQuestion={handleNextQuestion}
+            onPreviousQuestion={handlePreviousQuestion}
             bind:currentQuestionIndex
           />
         {/if}

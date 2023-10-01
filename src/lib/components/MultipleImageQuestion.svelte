@@ -1,59 +1,50 @@
 <script>
     import NextButton from "./NextButton.svelte";
-  
+    import BackButton from "./BackButton.svelte";
     export let question;
     export let onAnswer;
     export let currentQuestionIndex;
     export let language;
     export let questionsLen;
     export let onNextQuestion;
-  
+    export let onPreviousQuestion;
+    export let userAnswers;
     let isNextDisabled = true;
-    let translations;
-    console.log(question);
-    let currentRow;
-    let currectImageIndex;
+
     let answers = question.rows.flatMap((row) => row.images);
-  
-    if (language === 'en') {
-      translations = new Map([
-        ['buttonLabelNext', 'Next'],
-        ['buttonLabelFinish', 'Finish'],
-      ]);
-    } else if (language === 'ru') {
-      translations = new Map([
-        ['buttonLabelNext', 'Далее'],
-        ['buttonLabelFinish', 'Завершить'],
-      ]);
-    } else if (language === 'lv') {
-      translations = new Map([
-        ['buttonLabelNext', 'Nākamais'],
-        ['buttonLabelFinish', 'Pabeigt'],
-      ]);
+    if (!userAnswers.length) {
+      userAnswers = new Array(2);
     }
-  
+    let currentRow = userAnswers[0];
+    let currectImageIndex = userAnswers[1];
+    let selectedAnswer = `${userAnswers[0]}-${userAnswers[1]}`
     function handleAnswer(rowIndex, imageIndex) {
-      currentRow = rowIndex;
-      currectImageIndex = imageIndex;
-  
+      currentRow = rowIndex
+      currectImageIndex = imageIndex
       isNextDisabled = false;
-      const score = calculateScore();
-      console.log(score);
     }
-  
+    if (!userAnswers.includes(-1)) {
+      isNextDisabled = false;
+    }
     function handleNext() {
       const score = calculateScore();
-      console.log(score);
-      onAnswer(score);
+      userAnswers[0] = currentRow 
+      userAnswers[1] = currectImageIndex
+      onAnswer(userAnswers)
       onNextQuestion(score);
     }
-  
+    function handleBack(){
+      onAnswer(userAnswers)
+      onPreviousQuestion()
+    }
     function calculateScore() {
-      const selectedState = answers[currentRow * question.rows.length + currectImageIndex].state;
-      console.log(selectedState)
+      let sum = 0;
+      for (let i = 0; i<currentRow;i++){
+        sum += question.rows[i].images.length
+      }
+      const selectedState = answers[sum + currectImageIndex].state;
       return selectedState ? 1 : 0;
     }
-    console.log(question)
   </script>
   
   <main>
@@ -70,6 +61,7 @@
                 name="image-selection"
                 value={`${rowIndex}-${imageIndex}`}
                 on:change={() => handleAnswer(rowIndex, imageIndex)}
+                bind:group={selectedAnswer}
               />
               <div class="image-group">
                 <img src={image.image} alt="Answer Image" />
@@ -82,9 +74,14 @@
     <NextButton
       currentQuestionIndex={currentQuestionIndex}
       questionsLen={questionsLen}
-      translations={translations}
+      language={language}
       handleNext={handleNext}
       isDisabled={isNextDisabled}
+    />
+    <BackButton 
+      currentQuestionIndex={currentQuestionIndex}
+      handleBack={handleBack}
+      language={language}
     />
   </main>
   

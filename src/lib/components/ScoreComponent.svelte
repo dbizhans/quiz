@@ -5,9 +5,12 @@
     export let surname;
     export let maxScore;
     export let userAnswers;
-
-    console.log(userAnswers);
-    // Translation maps for different languages
+    console.log(score)
+    let sum=0;
+    for (let i = 0; i < score.length; i++) {
+      sum += score[i]; 
+    }
+    let percentage=( (sum / maxScore) * 100).toFixed (2);
     const translations = new Map([
       ['en', new Map([
         ['testCompletedTitle', 'Test Completed'],
@@ -15,7 +18,7 @@
       ])],
       ['ru', new Map([
         ['testCompletedTitle', 'Тест завершен'],
-        ['yourScoreLabel', 'Ваш балл'],
+        ['yourScoreLabel', 'Ваш результат'],
       ])],
       ['lv', new Map([
         ['testCompletedTitle', 'Tests Pabeigts'],
@@ -31,7 +34,7 @@
   
   <main>
     <h1>{getTranslation('testCompletedTitle')}</h1>
-    <p>{`${getTranslation('yourScoreLabel')}: ${score}/${maxScore}`}</p>
+    <p>{`${getTranslation('yourScoreLabel')} ${percentage}% (${sum}/${maxScore})`}</p>
   </main>
 
   <style>

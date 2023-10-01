@@ -1,54 +1,37 @@
 <script>
     import NextButton from "./NextButton.svelte";
-
+    import BackButton from "./BackButton.svelte";
+    import shuffle from 'shuffle-array';
     export let question;
     export let onAnswer;
     export let currentQuestionIndex;
     export let language;
     export let questionsLen;
     export let onNextQuestion;
-    let userAnswers = new Array(question.answers.length).fill(false);
-    let translations;
-    if (language === 'en') {
-        translations = new Map([
-            ['buttonLabelNext', 'Next'],
-            ['buttonLabelFinish', 'Finish'],
-        ]);
-        } else if (language === 'ru') {
-        translations = new Map([
-            ['buttonLabelNext', 'Далее'],
-            ['buttonLabelFinish', 'Завершить'],
-        ]);
-        } else if (language === 'lv') {
-        translations = new Map([
-            ['buttonLabelNext', 'Nākamais'],
-            ['buttonLabelFinish', 'Pabeigt'],
-        ]);
-    }
-    function handleAnswer(index) {
-      onAnswer(userAnswers);
+    export let userAnswers;
+    export let onPreviousQuestion;
+    if (!userAnswers.length) {
+      userAnswers = new Array(question.answers.length).fill(false);
+      shuffle(question.answers)
     }
   
     function calculateScore() {
-      let questionScore = 0;
-      question.answers.forEach((answer, index) => {
-        if (answer.state === userAnswers[index]) {
-            questionScore += 1/question.answers.length;
-        } else {
-            questionScore -= 1/question.answers.length;
-        }
-      });
-      if (questionScore<0) {
-        questionScore = 0;
-      }
-      questionScore = Math.round(questionScore * 100) / 100;
-      return questionScore;
+      return question.answers.every((answer, index) => {
+        return answer.state === userAnswers[question.answers[index].id-1];
+      }) ? 1 : 0;
     }
+
+
     function handleNext() {
         let score = calculateScore();
-        
+        onAnswer(userAnswers)
         onNextQuestion(score);
     }
+    function handleBack(){
+      onAnswer(userAnswers)
+      onPreviousQuestion()
+    }
+    
   </script>
   
   <main>
@@ -61,8 +44,7 @@
           <label>
             <input
               type="checkbox"
-              bind:checked={userAnswers[index]}
-              on:change={() => handleAnswer(index)}
+              bind:checked={userAnswers[question.answers[index].id-1]}
             />
             {answer.value}
           </label>
@@ -78,9 +60,15 @@
     <NextButton
         currentQuestionIndex={currentQuestionIndex}
         questionsLen={questionsLen}
-        translations={translations}
         handleNext={handleNext}
+        language={language}
     />
+    <BackButton 
+      currentQuestionIndex={currentQuestionIndex}
+      handleBack={handleBack}
+      language={language}
+    />
+
   </main>
   
   <style>
