@@ -1,4 +1,6 @@
 <script>
+    import Fa from 'svelte-fa'
+    import {faAngleLeft} from '@fortawesome/free-solid-svg-icons'
     export let currentQuestionIndex;
     export let language;
     export let handleBack;
@@ -18,43 +20,9 @@
         ]);
     }
   </script>
-    {#if currentQuestionIndex>0}
-        <button class="custom-button {isDisabled ? 'disabled' : ''}" on:click={handleBack} disabled={isDisabled}>
-            {translations.get('buttonLabelBack')}
+    {#if currentQuestionIndex>0} 
+        <button class="h-20 px-10 text-2xl btn variant-filled absolute left-0 mt-10" on:click={handleBack} disabled={isDisabled}>
+            <Fa icon={faAngleLeft}/>
+            <p class="ml-5px">{translations.get('buttonLabelBack')}</p>
         </button>
     {/if}
-  <style>
-    .custom-button {
-      background-color: #007bff; 
-      color: white; 
-      font-size: 18px; 
-      padding: 10px 20px; 
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      position: absolute;
-      left: 0px; 
-      transition: background-color 0.3s ease, transform 0.2s ease; 
-    }
-  
-    .custom-button:hover {
-      background-color: #0056b3;
-    }
-  
-    @media (max-width: 768px) {
-      .custom-button {
-        font-size: 16px; 
-        padding: 8px 16px; 
-      }
-      .custom-button:active {
-        transform: scale(0.95); 
-      }
-    }
-  
-
-    .custom-button.disabled {
-      background-color: #ccc;
-      cursor: not-allowed; 
-    }
-  </style>
-  

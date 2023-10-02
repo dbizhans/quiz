@@ -60,8 +60,9 @@
 </script>
 
 <main>
+  <div class="m-5 relative">
     {#if !testCompleted}
-      <p>{translations.get('questionLabel')} {currentQuestionIndex + 1} / {testParams.questions.length}</p>
+      <p class="text-xl mb-5">{translations.get('questionLabel')} {currentQuestionIndex + 1} / {testParams.questions.length}</p>
       {#if currentQuestion}
         {#if currentQuestion.type === 'multiple-choice'}
           <MultipleChoiceQuestion
@@ -112,4 +113,5 @@
     {:else}
       <ScoreComponent userAnswers={userAnswers} score={score} maxScore={testParams.questions.length} language={language} name={name} surname={surname}/>
     {/if}
+  </div>
   </main>

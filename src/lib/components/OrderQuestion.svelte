@@ -11,7 +11,6 @@
     export let onNextQuestion;
     export let onPreviousQuestion;
     let translations;
-  
     if (language === 'en') {
       translations = new Map([
         ['optionSelect', 'Select'],
@@ -60,16 +59,17 @@
   </script>
   
   <main>
-    <h2 style="font-size: 24px; margin-bottom: 10px;">{question.text}</h2>
-    <p style="color: red; font-size: 14px; margin-bottom: 10px;">{question.description}</p>
+    <h2 class="text-5xl font-bold mb-5">{question.text}</h2>
+    <p class="text-red-700 text-2xl mb-5">{question.description}</p>
   
     <div class="question-container">
-      <ol class="options">
+      <ol>
         {#each question.answers as answer, index}
-          <li>
-            <select
+          <li class="mb-4">
+            <select 
               bind:value={userAnswers[question.answers[index].id-1]}
               on:change={() => handleAnswer(index)}
+              class="p-2 text-2xl mr-3 outline"
             >
               <option value={translations.get('optionSelect')} disabled>
                 {translations.get('optionSelect')}
@@ -84,7 +84,7 @@
                 {/if}
               {/each}
             </select>
-            {answer.value}
+            <span class="text-2xl">{answer.value}</span>
           </li>
         {/each}
       </ol>
@@ -98,7 +98,6 @@
     <NextButton
         currentQuestionIndex={currentQuestionIndex}
         questionsLen={questionsLen}
-        translations={translations}
         language={language}
         handleNext={handleNext}
         isDisabled={isNextDisabled}
@@ -107,29 +106,9 @@
       currentQuestionIndex={currentQuestionIndex}
       handleBack={handleBack}
       language={language}
+      isDisabled={false}
     />
   </main>
   
-  <style>
-    .question-container {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-    }
-  
-    .options {
-      flex: 1;
-      margin-right: 20px;
-      list-style-type: none;
-      padding-left: 0;
-    }
-  
-    .options li {
-      margin-bottom: 10px;
-    }
-  
-    .image {
-      flex: 1;
-    }
-  </style>
+
   

@@ -22,6 +22,9 @@
       currentRow = rowIndex
       currectImageIndex = imageIndex
       isNextDisabled = false;
+      userAnswers[0] = currentRow 
+      userAnswers[1] = currectImageIndex
+      onAnswer(userAnswers)
     }
     if (!userAnswers.includes(-1)) {
       isNextDisabled = false;
@@ -48,8 +51,8 @@
   </script>
   
   <main>
-    <h2 style="font-size: 24px; margin-bottom: 10px;">{question.text}</h2>
-    <p style="color: red; font-size: 14px; margin-bottom: 10px;">{question.description}</p>
+    <h2 class="text-5xl font-bold mb-5">{question.text}</h2>
+    <p class="text-red-700 text-2xl mb-5">{question.description}</p>
   
     <div class="question-container">
       {#each question.rows as row, rowIndex}
@@ -82,6 +85,7 @@
       currentQuestionIndex={currentQuestionIndex}
       handleBack={handleBack}
       language={language}
+      isDisabled={false}
     />
   </main>
   
@@ -116,7 +120,7 @@
     .image-group img {
       max-height: 200px;
       height: auto;
-      border: 2px solid transparent;
+      border: 7px solid transparent;
       transition: border-color 0.3s ease-in-out;
       margin-bottom: 5px;
     }

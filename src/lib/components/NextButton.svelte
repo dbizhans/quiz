@@ -1,4 +1,7 @@
 <script>
+    import Fa from 'svelte-fa'
+    import {faAngleRight} from '@fortawesome/free-solid-svg-icons'
+    import {faAngleDoubleRight} from '@fortawesome/free-solid-svg-icons'
     export let currentQuestionIndex;
     export let questionsLen;
     export let language;
@@ -24,44 +27,15 @@
     
   </script>
   
-  <button class="custom-button {isDisabled ? 'disabled' : ''}" on:click={handleNext} disabled={isDisabled}>
-    {currentQuestionIndex === questionsLen - 1
+  <button class="h-20 px-10 text-2xl mt-10 btn variant-filled absolute right-0 " on:click={handleNext} disabled={isDisabled}>
+    <p class="mr-5px">{currentQuestionIndex === questionsLen - 1
       ? translations.get('buttonLabelFinish')
       : translations.get('buttonLabelNext')}
+      </p>
+      {#if currentQuestionIndex === questionsLen - 1}
+        <Fa icon={faAngleDoubleRight}/>
+      {:else}
+        <Fa icon={faAngleRight}/>
+      {/if}
   </button>
-  
-  <style>
-    .custom-button {
-      background-color: #007bff; 
-      color: white; 
-      font-size: 18px; 
-      padding: 10px 20px; 
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      position: absolute;
-      right: 20px; 
-      transition: background-color 0.3s ease, transform 0.2s ease; 
-    }
-  
-    .custom-button:hover {
-      background-color: #0056b3;
-    }
-  
-    @media (max-width: 768px) {
-      .custom-button {
-        font-size: 16px; 
-        padding: 8px 16px; 
-      }
-      .custom-button:active {
-        transform: scale(0.95); 
-      }
-    }
-  
-
-    .custom-button.disabled {
-      background-color: #ccc;
-      cursor: not-allowed; 
-    }
-  </style>
   

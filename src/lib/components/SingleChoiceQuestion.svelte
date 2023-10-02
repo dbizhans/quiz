@@ -51,32 +51,33 @@
     }
   </script>
   
-  <main>
-    <h2 style="font-size: 24px; margin-bottom: 10px;">{question.text}</h2>
-    <p style="color: red; font-size: 14px; margin-bottom: 10px;">{question.description}</p>
-  
-    <div class="question-container">
-        <div class="options">
-          {#each question.answers as answer, index (answer.value)}
-            <label>
+  <main>        
+    <h2 class="text-5xl font-bold mb-5">{question.text}</h2>
+    <p class="text-red-700 text-2xl mb-5">{question.description}</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <div>
+            {#each question.answers as answer, index (answer.value)}
+            <label class="text-3xl border border-gray-200 rounded mb-4 sm:text-2xl">
               <input
                 type="radio"
                 name="answer"
                 bind:group={selectedAnswer}
                 value={index}
                 on:change={() => handleAnswer(index)}
+                class="w-7 h-7 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-3 dark:bg-gray-700 dark:border-gray-600"
               />
               {answer.value}
             </label>
-          {/each}
+            {/each}
+          </div>
         </div>
-  
+      
       {#if question.image}
-        <div class="image">
-          <img src={question.image} alt="Question Image" style="max-width: 100%;" />
-        </div>
+      <img src={question.image} alt="Question Image" class="object-fit w-full"/>
       {/if}
     </div>
+    
     <NextButton
         currentQuestionIndex={currentQuestionIndex}
         questionsLen={questionsLen}
@@ -88,31 +89,9 @@
       currentQuestionIndex={currentQuestionIndex}
       handleBack={handleBack}
       language={language}
+      isDisabled={false}
     />
   </main>
   
-  <style>
-    .question-container {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-    }
-  
-    .options {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      max-height: 200px;
-      overflow-y: auto;
-      margin-right: 20px;
-    }
-  
-    .options label {
-      margin-bottom: 10px;
-    }
-  
-    .image {
-      flex: 1;
-    }
-  </style>
+
   

@@ -31,66 +31,44 @@
       onAnswer(userAnswers)
       onPreviousQuestion()
     }
-    
   </script>
   
   <main>
-    <h2 style="font-size: 24px; margin-bottom: 10px;">{question.text}</h2>
-    <p style="color: red; font-size: 14px; margin-bottom: 10px;">{question.description}</p>
-  
-    <div class="question-container">
+    <h2 class="text-5xl font-bold mb-5">{question.text}</h2>
+    <p class="text-red-700 text-2xl mb-5">{question.description}</p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    
       <div class="options">
         {#each question.answers as answer, index (answer.value)}
-          <label>
+          <label class="mb-2 text-3xl sm:text-2xl">
             <input
               type="checkbox"
               bind:checked={userAnswers[question.answers[index].id-1]}
+              class="w-5 h-5 border border-gray-200 rounded mb-4"
             />
             {answer.value}
           </label>
         {/each}
       </div>
-  
       {#if question.image}
-        <div class="image">
-          <img src={question.image} alt="Question Image" style="max-width: 100%;" />
-        </div>
-      {/if}
+      <div class="image">
+        <img src={question.image} alt="Question Image" class="object-fit w-full" />
+      </div>
+    {/if}
     </div>
     <NextButton
         currentQuestionIndex={currentQuestionIndex}
         questionsLen={questionsLen}
         handleNext={handleNext}
         language={language}
+        isDisabled={false}
     />
     <BackButton 
       currentQuestionIndex={currentQuestionIndex}
       handleBack={handleBack}
       language={language}
+      isDisabled={false}
     />
 
   </main>
-  
-  <style>
-    .question-container {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-    }
-  
-    .options {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-
-    }
-  
-    .options label {
-      margin-bottom: 10px;
-    }
-  
-    .image {
-      flex: 1;
-    }
-  </style>
-  

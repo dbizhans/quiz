@@ -61,80 +61,37 @@
     $: isDisabled = !name || !surname;
 </script>
 
-
-<style>
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh; 
-    }
   
-
-    .radio-buttons {
-      display: flex;
-      justify-content: center;
-      margin-top: 10px;
-    }
-
-    label {
-      margin: 10px 0;
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-right: 10px;
-    }
-
-    form {
-      text-align: center;
-    }
-  
-    .custom-button {
-      background-color: #007bff; 
-      color: white; 
-      font-size: 18px; 
-      padding: 10px 20px; 
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease; 
-    }
-  
-    .custom-button.disabled {
-      background-color: #ccc;
-      cursor: not-allowed; 
-    }
-  </style>
-  
-  <div class="container">
+  <div class="flex items-center justify-center h-screen">
+    <div class="text-center">
     {#if data}
-      <h1>{data[selectedLanguage] ? data[selectedLanguage].title : 'Loading...'}</h1>
-      <div class="radio-buttons">
+      <h1 class="text-3xl font-bold mb-4">{data[selectedLanguage] ? data[selectedLanguage].title : 'Loading...'}</h1>
+      <div class="radio-buttons mb-4">
         {#each Object.entries(data) as [lang, available]}
           {#if available}
-            <label>
-              <input type="radio" bind:group={selectedLanguage} value={lang}>
+          <label class="inline-flex items-center space-x-0.5 mb-2 mr-4">
+            <input type="radio" class="form-radio mr-2" bind:group={selectedLanguage} value={lang}> 
+            <span class="text-lg font-bold"> 
               {lang === 'en' ? 'English' : lang === 'ru' ? 'Русский' : lang === 'lv' ? 'Latviešu' : lang}
-            </label>
+            </span>
+          </label>
           {/if}
         {/each}
       </div>
       <form on:submit={startTest}>
-        <label>
-          {labels[selectedLanguage].name}:
-          <input type="text" bind:value={name} required>
+        <label class="flex items-center space-x-2 mb-4">
+          <span class="text-xl font-bold">{labels[selectedLanguage].name}:</span>
+          <input type="text" class="w-full border rounded p-2 text-lg font-bold" bind:value={name} required>
         </label>
-        <label>
-          {labels[selectedLanguage].surname}:
-          <input type="text" bind:value={surname} required>
+        <label class="flex items-center space-x-2 mb-4">
+          <span class="text-xl font-bold">{labels[selectedLanguage].surname}:</span>
+          <input type="text" class="w-full border rounded p-2 text-lg font-bold" bind:value={surname} required>
         </label>
-        <button class="custom-button {isDisabled ? 'disabled' : ''}" type="submit" disabled={isDisabled}>{buttonLabels[selectedLanguage]}</button>
+        <button class="btn variant-filled h-16 px-8 text-2xl mt-5" type="submit" disabled={isDisabled}>{buttonLabels[selectedLanguage]}</button>
       </form>
     {:else}
-      <p>Loading...</p>
+      <p class="text-lg font-bold">Loading...</p>
     {/if}
+  </div>
   </div>
   

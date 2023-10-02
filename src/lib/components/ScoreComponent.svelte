@@ -33,8 +33,8 @@
   </script>
   
   <main>
-    <h1>{getTranslation('testCompletedTitle')}</h1>
-    <p>{`${getTranslation('yourScoreLabel')} ${percentage}% (${sum}/${maxScore})`}</p>
+    <h1 class="text-5xl text-bold">{getTranslation('testCompletedTitle')}</h1>
+    <p class="text-xl">{`${getTranslation('yourScoreLabel')} ${percentage}% (${sum}/${maxScore})`}</p>
   </main>
 
   <style>
