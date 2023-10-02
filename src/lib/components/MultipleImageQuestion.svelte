@@ -13,7 +13,7 @@
 
     let answers = question.rows.flatMap((row) => row.images);
     if (!userAnswers.length) {
-      userAnswers = new Array(2);
+      userAnswers = new Array(2).fill(-1);
     }
     let currentRow = userAnswers[0];
     let currectImageIndex = userAnswers[1];

@@ -47,14 +47,9 @@
       onPreviousQuestion()
     }
     function calculateScore() {
-      question.answers.every((answer, index) => {
-        if (!(!answer && (userAnswers[question.answers[index].id-1]===translations.get('optionOdd')))) {
-          return 0
-        } else if (answer !== userAnswers[question.answers[index].id-1]) {
-          return 0
-        }
-      });
-      return 1
+      return question.answers.every((answer, index) => {
+        return (userAnswers[question.answers[index].id-1]===translations.get('optionOdd')) || (userAnswers[question.answers[index].id-1]===answer.order)
+      }) ? 1 : 0;
     }
 
     function handleNext() {
