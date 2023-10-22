@@ -10,7 +10,7 @@
     export let onNextQuestion;
     export let userAnswers;
     export let onPreviousQuestion;
-
+    export let isReviewMode
     if (!userAnswers.length) {
       userAnswers = new Array(question.answers.length).fill(false);
       shuffle(question.answers)
@@ -41,13 +41,23 @@
     }
 
     function handleNext() {
-      let score = calculateScore();
-      onAnswer(userAnswers);
-      onNextQuestion(score);
+      if(isReviewMode){
+        onNextQuestion()
+      }else{
+        let score = calculateScore();
+        onAnswer(userAnswers);
+        onNextQuestion(score);        
+      }
+
     }
     function handleBack(){
-      onAnswer(userAnswers)
-      onPreviousQuestion()
+      if(isReviewMode){
+        onPreviousQuestion()
+      }else{
+        onAnswer(userAnswers)
+        onPreviousQuestion()        
+      }
+
     }
   </script>
   
@@ -58,17 +68,33 @@
         <div>
           <div>
             {#each question.answers as answer, index (answer.value)}
-            <label class="text-3xl border border-gray-200 rounded mb-4 sm:text-2xl">
-              <input
-                type="radio"
-                name="answer"
-                bind:group={selectedAnswer}
-                value={index}
-                on:change={() => handleAnswer(index)}
-                class="w-7 h-7 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-3 dark:bg-gray-700 dark:border-gray-600"
-              />
-              {answer.value}
-            </label>
+            {#if isReviewMode}
+            <div class="{answer.state !== userAnswers[question.answers[index].id - 1] && userAnswers[question.answers[index].id - 1] ? 'border-4 border-red-600 rounded-md pl-2 mb-2' : ''}">
+              <label class="text-3xl border border-gray-200 rounded mb-4 sm:text-2xl">
+                <input
+                  type="radio"
+                  name="answer"
+                  disabled
+                  bind:group={selectedAnswer}
+                  value={index}
+                  class="w-7 h-7 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-3 dark:bg-gray-700 dark:border-gray-600"
+                />
+                {answer.value}
+              </label>
+              </div>
+            {:else}
+              <label class="text-3xl border border-gray-200 rounded mb-4 sm:text-2xl">
+                <input
+                  type="radio"
+                  name="answer"
+                  bind:group={selectedAnswer}
+                  value={index}
+                  on:change={() => handleAnswer(index)}
+                  class="w-7 h-7 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-3 dark:bg-gray-700 dark:border-gray-600"
+                />
+                {answer.value}
+              </label>
+            {/if}
             {/each}
           </div>
         </div>

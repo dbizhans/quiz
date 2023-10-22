@@ -21,7 +21,7 @@
     }
   </script>
     {#if currentQuestionIndex>0} 
-        <button class="h-20 px-10 text-2xl btn variant-filled absolute left-0 mt-10" on:click={handleBack} disabled={isDisabled}>
+        <button class="h-20 px-10 text-2xl mt-10 btn variant-filled absolute left-0" on:click={handleBack} disabled={isDisabled}>
             <Fa icon={faAngleLeft}/>
             <p class="ml-5px">{translations.get('buttonLabelBack')}</p>
         </button>

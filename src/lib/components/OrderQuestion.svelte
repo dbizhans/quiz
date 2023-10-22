@@ -10,6 +10,7 @@
     export let userAnswers
     export let onNextQuestion;
     export let onPreviousQuestion;
+    export let isReviewMode
     let translations;
     if (language === 'en') {
       translations = new Map([
@@ -29,6 +30,7 @@
     }
     if (!userAnswers.length) {
       userAnswers = new Array(question.answers.length).fill(translations.get('optionSelect'));
+      console.log(question.answers.length)
       shuffle(question.answers)
     }
     let isNextDisabled = true; 
@@ -42,8 +44,13 @@
     }
     
     function handleBack(){
-      onAnswer(userAnswers)
-      onPreviousQuestion()
+      if(isReviewMode){
+        onPreviousQuestion()
+      } else {
+        onAnswer(userAnswers)
+        onPreviousQuestion()        
+      }
+
     }
     function calculateScore() {
       return question.answers.every((answer, index) => {
@@ -52,9 +59,14 @@
     }
 
     function handleNext() {
+      if(isReviewMode){
+        onNextQuestion()
+      } else {
         let score = calculateScore();
         onAnswer(userAnswers);
         onNextQuestion(score);
+      }
+
     }
   </script>
   
@@ -65,27 +77,54 @@
     <div class="question-container">
       <ol>
         {#each question.answers as answer, index}
+          {#if isReviewMode}
           <li class="mb-4">
+            <div class="{!((userAnswers[question.answers[index].id-1]===translations.get('optionOdd')) || (userAnswers[question.answers[index].id-1]===answer.order)) ? 'border-4 border-red-600 rounded-md' : ''}">
             <select 
-              bind:value={userAnswers[question.answers[index].id-1]}
-              on:change={() => handleAnswer(index)}
-              class="p-2 text-2xl mr-3 outline"
-            >
-              <option value={translations.get('optionSelect')} disabled>
-                {translations.get('optionSelect')}
-              </option>
-              {#each Array(userAnswers.length + 1).fill('') as _, i}
-                {#if i === 0}
-                  <option value={0}>
-                    {translations.get('optionOdd')}
-                  </option>
-                {:else}
-                  <option value={i}>{i}</option>
-                {/if}
-              {/each}
-            </select>
-            <span class="text-2xl">{answer.value}</span>
-          </li>
+                disabled
+                bind:value={userAnswers[question.answers[index].id-1]}
+                on:change={() => handleAnswer(index)}
+                class="p-2 text-2xl mr-3 outline"
+              >
+                <option value={translations.get('optionSelect')} disabled>
+                  {translations.get('optionSelect')}
+                </option>
+                {#each Array(userAnswers.length + 1).fill('') as _, i}
+                  {#if i === 0}
+                    <option value={0}>
+                      {translations.get('optionOdd')}
+                    </option>
+                  {:else}
+                    <option value={i}>{i}</option>
+                  {/if}
+                {/each}
+              </select>
+              <span class="text-2xl">{answer.value}</span>
+            </div>
+            </li>
+          {:else}
+            <li class="mb-4">
+              <select 
+                bind:value={userAnswers[question.answers[index].id-1]}
+                on:change={() => handleAnswer(index)}
+                class="p-2 text-2xl mr-3 outline"
+              >
+                <option value={translations.get('optionSelect')} disabled>
+                  {translations.get('optionSelect')}
+                </option>
+                {#each Array(userAnswers.length + 1).fill('') as _, i}
+                  {#if i === 0}
+                    <option value={0}>
+                      {translations.get('optionOdd')}
+                    </option>
+                  {:else}
+                    <option value={i}>{i}</option>
+                  {/if}
+                {/each}
+              </select>
+              <span class="text-2xl">{answer.value}</span>
+            </li>
+          {/if}
         {/each}
       </ol>
   

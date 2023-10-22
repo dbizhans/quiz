@@ -27,7 +27,7 @@
     
   </script>
   
-  <button class="h-20 px-10 text-2xl mt-10 btn variant-filled absolute right-0 " on:click={handleNext} disabled={isDisabled}>
+  <button class="h-20 px-10 text-2xl mt-10 btn variant-filled absolute right-0" on:click={handleNext} disabled={isDisabled}>
     <p class="mr-5px">{currentQuestionIndex === questionsLen - 1
       ? translations.get('buttonLabelFinish')
       : translations.get('buttonLabelNext')}

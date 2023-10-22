@@ -9,8 +9,9 @@
     export let onNextQuestion;
     export let onPreviousQuestion;
     export let userAnswers;
+    export let isReviewMode
     let isNextDisabled = true;
-
+    console.log(userAnswers)
     let answers = question.rows.flatMap((row) => row.images);
     if (!userAnswers.length) {
       userAnswers = new Array(2).fill(-1);
@@ -30,15 +31,24 @@
       isNextDisabled = false;
     }
     function handleNext() {
-      const score = calculateScore();
-      userAnswers[0] = currentRow 
-      userAnswers[1] = currectImageIndex
-      onAnswer(userAnswers)
-      onNextQuestion(score);
+      if(isReviewMode){
+        onNextQuestion()
+      } else {
+        const score = calculateScore();
+        userAnswers[0] = currentRow 
+        userAnswers[1] = currectImageIndex
+        onAnswer(userAnswers)
+        onNextQuestion(score);
+        }
     }
     function handleBack(){
-      onAnswer(userAnswers)
-      onPreviousQuestion()
+      if(isReviewMode){
+        onPreviousQuestion()
+      } else {
+        onAnswer(userAnswers)
+        onPreviousQuestion()
+      }
+
     }
     function calculateScore() {
       let sum = 0;
@@ -53,23 +63,38 @@
   <main>
     <h2 class="text-5xl font-bold mb-5">{question.text}</h2>
     <p class="text-red-700 text-2xl mb-5">{question.description}</p>
-  
     <div class="question-container">
       {#each question.rows as row, rowIndex}
         <div class="row-container">
           {#each row.images as image, imageIndex}
-            <label style={`--row: ${row.order} / span 1; --col: ${imageIndex + 1} / span 1;`}>
-              <input
-                type="radio"
-                name="image-selection"
-                value={`${rowIndex}-${imageIndex}`}
-                on:change={() => handleAnswer(rowIndex, imageIndex)}
-                bind:group={selectedAnswer}
-              />
-              <div class="image-group">
-                <img src={image.image} alt="Answer Image" />
-              </div>
-            </label>
+            {#if isReviewMode}
+              <label style={`--row: ${row.order} / span 1; --col: ${imageIndex + 1} / span 1;`} class="{(!(!image.state && (userAnswers[0] === rowIndex) && (userAnswers[1] === imageIndex))) ? '' : 'border-8 border-red-600 rounded-md p-2'}"
+              >
+                <input
+                  type="radio"
+                  disabled
+                  name="image-selection"
+                  value={`${rowIndex}-${imageIndex}`}
+                  bind:group={selectedAnswer}
+                />
+                <div class="image-group">
+                  <img src={image.image} alt="Answer Image" />
+                </div>
+              </label>
+            {:else}
+              <label style={`--row: ${row.order} / span 1; --col: ${imageIndex + 1} / span 1;`}>
+                <input
+                  type="radio"
+                  name="image-selection"
+                  value={`${rowIndex}-${imageIndex}`}
+                  on:change={() => handleAnswer(rowIndex, imageIndex)}
+                  bind:group={selectedAnswer}
+                />
+                <div class="image-group">
+                  <img src={image.image} alt="Answer Image" />
+                </div>
+              </label>
+            {/if}
           {/each}
         </div>
       {/each}

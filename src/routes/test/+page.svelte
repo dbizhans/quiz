@@ -1,7 +1,8 @@
 <script>
     import shuffle from 'shuffle-array';
-    import { testStore } from '../../stores/testStore';
-
+    import { testStore, savedUserAnswers, savedScore, savedCurrentQuestionIndex, shuffledQuestions, savedTestCompleted, savedReviewMode } from '../../stores/testStore';
+    import { browser } from "$app/environment"
+    import { onMount } from 'svelte';
     import MultipleChoiceQuestion from '$lib/components/MultipleChoiceQuestion.svelte';
     import SingleChoiceQuestion from '$lib/components/SingleChoiceQuestion.svelte';
     import OrderQuestion from '$lib/components/OrderQuestion.svelte';
@@ -9,70 +10,144 @@
     import ScoreComponent from '$lib/components/ScoreComponent.svelte';
 
     let testParams;
-    let currentQuestionIndex = 0;
+    let currentQuestionIndex;
     let translations; 
+    let userAnswers
+    let score
+    let currentQuestion
+    let name, surname, language, questions;
+    let shuffled
+    let testCompleted
+    let isReviewMode
+    let currentUserAnswer
+    let incorrectQuestions
     testStore.subscribe(value => {
-        testParams = value;
+      testParams = value;
     });
-    let { name, surname, language, questions } = testParams;
-    shuffle(questions)
-    if (language === 'en') {
-    translations = new Map([
-        ['testTitle', 'Test'],
-        ['questionLabel', 'Question'],
-    ]);
-    } else if (language === 'ru') {
-    translations = new Map([
-        ['testTitle', 'Тест'],
-        ['questionLabel', 'Вопрос'],
-    ]);
-    } else if (language === 'lv') {
-    translations = new Map([
-        ['testTitle', 'Tests'],
-        ['questionLabel', 'Jautājums'],
-    ]);
-    }
-    let userAnswers = new Array(questions.length).fill([]);
-    let score = new Array(questions.length).fill(0);
-    let currentQuestion = questions[currentQuestionIndex];
-    let testCompleted = false; 
+    savedUserAnswers.subscribe(value => {
+      userAnswers = value;
+    });
+    console.log(userAnswers)
+    savedScore.subscribe(value => {
+      score = value;
+    });
+    savedCurrentQuestionIndex.subscribe(value => {
+      currentQuestionIndex = value;
+    });
+    shuffledQuestions.subscribe(value => { 
+      shuffled = value;
+    });
+    savedTestCompleted.subscribe(value => {
+      testCompleted = value;
+    });
+    savedReviewMode.subscribe(value => {
+      isReviewMode = value;
+    });
+    $: if(testParams && shuffled) {
+      ({ name, surname, language, questions } = testParams);
+
+      if (language === 'en') {
+      translations = new Map([
+          ['testTitle', 'Test'],
+          ['questionLabel', 'Question'],
+      ]);
+      } else if (language === 'ru') {
+      translations = new Map([
+          ['testTitle', 'Тест'],
+          ['questionLabel', 'Вопрос'],
+      ]);
+      } else if (language === 'lv') {
+      translations = new Map([
+          ['testTitle', 'Tests'],
+          ['questionLabel', 'Jautājums'],
+      ]);
+      }
+      if(isReviewMode){
+        currentQuestion=incorrectQuestions[currentQuestionIndex]
+        currentUserAnswer = userAnswers[incorrectQuestions[currentQuestionIndex].id-1]
+      }else{
+        currentQuestion = shuffled[currentQuestionIndex];
+        currentUserAnswer = userAnswers[shuffled[currentQuestionIndex].id-1]
+      }
+  }
     function handleNextQuestion(questionScore) {
-        score[questions[currentQuestionIndex].id-1]=questionScore
-        if (currentQuestionIndex < testParams.questions.length - 1) {
+      if (!isReviewMode) {
+        score[shuffled[currentQuestionIndex].id-1]=questionScore
+        savedScore.set(score)
+      }
+        if (currentQuestionIndex < shuffled.length - 1 && !isReviewMode) {
             currentQuestionIndex += 1;
-            currentQuestion = questions[currentQuestionIndex];
-        } else if (currentQuestionIndex == testParams.questions.length - 1) {
+            savedCurrentQuestionIndex.set(currentQuestionIndex)
+            currentQuestion = shuffled[currentQuestionIndex]; 
+            currentUserAnswer = userAnswers[shuffled[currentQuestionIndex].id-1]
+        } else if ((currentQuestionIndex == shuffled.length - 1) && !isReviewMode) {
             testCompleted = true;
+            savedTestCompleted.set(testCompleted)
+        } else if (currentQuestionIndex < incorrectQuestions.length - 1 && isReviewMode){
+          currentUserAnswer = userAnswers[incorrectQuestions[currentQuestionIndex].id-1]
+          currentQuestionIndex += 1;
+          savedCurrentQuestionIndex.set(currentQuestionIndex)
+          currentQuestion = incorrectQuestions[currentQuestionIndex]; 
+        } else if ((currentQuestionIndex == incorrectQuestions.length - 1) && isReviewMode) {
+          savedReviewMode.set(false)
         }
+        console.log(currentUserAnswer)
     } 
+    function createFilteredArray(questions, exclusion) {
+      const filteredQuestions = [];
+      for (let i = 0; i < exclusion.length; i++) {
+        if (exclusion[i] === 0) {
+          filteredQuestions.push(questions[i]);
+        }
+      }
+      return filteredQuestions;
+    }
+
     function handlePreviousQuestion(){
       if (currentQuestionIndex>0){
         currentQuestionIndex--
-        currentQuestion = questions[currentQuestionIndex];
+        savedCurrentQuestionIndex.set(currentQuestionIndex)
+        if(isReviewMode){
+          currentQuestion=incorrectQuestions[currentQuestionIndex]
+          currentUserAnswer = userAnswers[incorrectQuestions[currentQuestionIndex].id-1]
+        }else{
+          currentQuestion = shuffled[currentQuestionIndex];
+          currentUserAnswer = userAnswers[shuffled[currentQuestionIndex].id-1]
+        }
       }
 
     }
 
     function handleAnswer(answer) {
-        userAnswers[questions[currentQuestionIndex].id-1]=answer;
-        console.log(userAnswers)
+      userAnswers[shuffled[currentQuestionIndex].id-1]=answer;
+      savedUserAnswers.set(userAnswers)
+    }
+
+    function handleReviewMode(){
+      console.log(score)
+      console.log(questions)
+      incorrectQuestions = createFilteredArray(questions, score)
+      savedReviewMode.set(true)
+      savedCurrentQuestionIndex.set(0)
     }
 </script>
 
 <main>
+  {#if testParams && shuffled}
   <div class="m-5 relative">
-    {#if !testCompleted}
-      <p class="text-xl mb-5">{translations.get('questionLabel')} {currentQuestionIndex + 1} / {testParams.questions.length}</p>
+    {#if !testCompleted || isReviewMode}
+      <p class="text-xl mb-5">{translations.get('questionLabel')} {currentQuestionIndex + 1} / {isReviewMode ? incorrectQuestions.length : shuffled.length}</p>
       {#if currentQuestion}
         {#if currentQuestion.type === 'multiple-choice'}
           <MultipleChoiceQuestion
             question={currentQuestion}
             onAnswer={handleAnswer}
             language={language}
-            questionsLen={testParams.questions.length}
-            userAnswers={userAnswers[questions[currentQuestionIndex].id-1] } 
+            questionsLen={shuffled.length}
+            userAnswers={currentUserAnswer } 
             onNextQuestion={handleNextQuestion}
             onPreviousQuestion={handlePreviousQuestion}
+            isReviewMode={isReviewMode}
             bind:currentQuestionIndex
           />
         {:else if currentQuestion.type === 'single-choice'}
@@ -80,10 +155,11 @@
             question={currentQuestion}
             onAnswer={handleAnswer}
             language={language}
-            questionsLen={testParams.questions.length}
-            userAnswers={userAnswers[questions[currentQuestionIndex].id-1] } 
+            questionsLen={shuffled.length}
+            userAnswers={currentUserAnswer } 
             onNextQuestion={handleNextQuestion}
             onPreviousQuestion={handlePreviousQuestion}
+            isReviewMode={isReviewMode}
             bind:currentQuestionIndex
           />
         {:else if currentQuestion.type === 'order'}
@@ -91,10 +167,11 @@
             question={currentQuestion}
             onAnswer={handleAnswer}
             language={language}
-            questionsLen={testParams.questions.length}
-            userAnswers={userAnswers[questions[currentQuestionIndex].id-1] } 
+            questionsLen={shuffled.length}
+            userAnswers={currentUserAnswer } 
             onNextQuestion={handleNextQuestion}
             onPreviousQuestion={handlePreviousQuestion}
+            isReviewMode={isReviewMode}
             bind:currentQuestionIndex
           />
         {:else if currentQuestion.type === 'multiple-image'}
@@ -102,16 +179,18 @@
             question={currentQuestion}
             onAnswer={handleAnswer}
             language={language}
-            questionsLen={testParams.questions.length}
-            userAnswers={userAnswers[questions[currentQuestionIndex].id-1] } 
+            questionsLen={shuffled.length}
+            userAnswers={currentUserAnswer } 
             onNextQuestion={handleNextQuestion}
             onPreviousQuestion={handlePreviousQuestion}
+            isReviewMode={isReviewMode}
             bind:currentQuestionIndex
           />
         {/if}
       {/if}
-    {:else}
-      <ScoreComponent userAnswers={userAnswers} score={score} maxScore={testParams.questions.length} language={language} name={name} surname={surname}/>
+    {:else if testCompleted && !isReviewMode}
+      <ScoreComponent userAnswers={userAnswers} score={score} maxScore={shuffled.length} language={language} name={name} surname={surname} handleReviewMode={handleReviewMode} />
     {/if}
   </div>
+  {/if}
   </main>
