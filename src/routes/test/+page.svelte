@@ -15,7 +15,7 @@
     let userAnswers
     let score
     let currentQuestion
-    let name, surname, language, questions;
+    let name, surname, language, questions, id;
     let shuffled
     let testCompleted
     let isReviewMode
@@ -44,7 +44,7 @@
       isReviewMode = value;
     });
     $: if(testParams && shuffled) {
-      ({ name, surname, language, questions } = testParams);
+      ({ name, surname, language, questions, id } = testParams);
 
       if (language === 'en') {
       translations = new Map([
@@ -70,6 +70,32 @@
         currentUserAnswer = userAnswers[shuffled[currentQuestionIndex].id-1]
       }
   }
+  async function sendResult(){
+    let sum=0;
+    for (let i = 0; i < score.length; i++) {
+      sum += score[i]; 
+    }
+    let percentage=Math.round( (sum / shuffled.length) * 100);
+    console.log()
+    try {
+      const res = await fetch('/api/add-result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name: name, 
+          surname: surname, 
+          result: percentage,
+          test_id: parseInt(id), 
+          time_finished: new Date(), 
+          person_id: null
+         })
+    });
+    const data = await res.json();
+    console.log(data)
+    } catch (error){
+      console.log(error)
+    }
+  }
     function handleNextQuestion(questionScore) {
       if (!isReviewMode) {
         score[shuffled[currentQuestionIndex].id-1]=questionScore
@@ -83,6 +109,7 @@
         } else if ((currentQuestionIndex == shuffled.length - 1) && !isReviewMode) {
             testCompleted = true;
             savedTestCompleted.set(testCompleted)
+            sendResult()
         } else if (currentQuestionIndex < incorrectQuestions.length - 1 && isReviewMode){
           currentUserAnswer = userAnswers[incorrectQuestions[currentQuestionIndex].id-1]
           currentQuestionIndex += 1;

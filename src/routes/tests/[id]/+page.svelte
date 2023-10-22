@@ -46,6 +46,7 @@
             surname,
             language: selectedLanguage,
             questions: data[selectedLanguage].questions, 
+            id: id
         };
         console.log(testParams)
         testStore.set(testParams);
